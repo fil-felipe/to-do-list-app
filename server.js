@@ -8,7 +8,7 @@ app.use(express.json());
 
 const db = new Firestore({
   projectId: 'my-project-375718',
-  keyFilename: 'application_default_credentials.json'
+//   keyFilename: 'application_default_credentials.json'
 });
 
 const task_collection = db.collection('users')
