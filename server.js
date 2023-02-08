@@ -40,60 +40,38 @@ app.get("/read-task", function(req,res){
     readData().then(response => (res.json(response)));
 });
 
-app.post("/add-task", async function(req,res){
-    // async function addData(json_data) {
-    //     try {
-    //         const new_data = await task_collection.add(json_data);
-    //         console.log("Data added")
-    //     } catch {
-    //         console.log("something went wrong in function addData")
-    //     } 
-    // }
-    //     addData(req.body).then(
-    //         // readData().then(response => (res.json(response)))
-    //         request => {console.log(request)}
-    //         );
+app.post("/add-task", async function(req,res) {
     const json_data = req.body;
-    // console.log(json_data)
     await task_collection.add(json_data);
     const output = await readData();
     res.json(output);
-    // then(readData().then(response => (res.json(response)))
-        // response=>{
-        // console.log(response);
-        // res.send("Done");
-        
-    // }
-    // )
 })
 
-app.post("/delete-task", function(req,res){
-    // async function updateData(input_json) {
+app.post("/delete-task", async function(req,res){
         const input_json = req.body;
-        task_collection.doc(input_json.id).get()
-        .then(current_data => {
-            const updated_data = current_data.data();
-            if (updated_data.deleted) {
-                updated_data.deleted = false;
-            } else {
-                updated_data.deleted = true;
-            }
-            task_collection.doc(input_json.id).set(updated_data).then(readData().then(response => (res.json(response))));
-        })
-})
+        const current_data = await task_collection.doc(input_json.id).get();
+        let updated_data = current_data.data();
+        if (updated_data.deleted) {
+            updated_data.deleted = false;
+        } else {
+            updated_data.deleted = true;
+        }
+        await task_collection.doc(input_json.id).set(updated_data);
+        const output = await readData();
+        res.json(output);
+});
 
-app.delete("/delete-tasks", function(req,res) {
-    task_collection.get()
-    .then(response => {
-        response.forEach(doc => {
-            // console.log(doc.data().deleted)
+app.delete("/delete-tasks", async function(req,res) {
+    const actualTasks = await task_collection.get();
+
+    await actualTasks.forEach(doc => {
             if (doc.data().deleted) {
-                console.log(doc.id)
-                task_collection.doc(doc.id).delete()
+                task_collection.doc(doc.id).delete();
             }
         });
-    }).then(readData().then(response => (res.json(response))))
-})
+    const output = await readData();
+    res.json(output);
+});
 
 app.listen(PORT, () => {
     console.log(`server run on ${PORT}`);
