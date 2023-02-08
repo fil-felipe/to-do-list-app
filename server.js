@@ -18,25 +18,26 @@ let collection_name = "default-to-do-list"
 
 const task_collection = db.collection(collection_name)
 
-app.get("/api", function(req,res){
+async function readData() {
+    const output = []
+    const snapshot = await task_collection.get()
+    snapshot.forEach(doc => {
+        output.push({
+            id: doc.id,
+            content: doc.data()
+        })
+        })
+    return output
+}
+
+app.get("/", function(req,res){
     // addData()
     // readData()
-    res.json({message: "test from backend"});
+    res.send("Welcome in to-do-list-app");
 });
 
 app.get("/read-task", function(req,res){
-    async function readData() {
-        const snapshot = await task_collection.get();
-        const output = []
-        snapshot.forEach(doc => {
-            output.push({
-                id: doc.id,
-                content: doc.data()
-            })
-            })
-        return res.json(output)
-    }
-    readData()
+    readData().then(response => (res.json(response)));
 });
 
 app.post("/add-task", function(req,res){
@@ -48,27 +49,38 @@ app.post("/add-task", function(req,res){
             console.log("something went wrong in function addData")
         } 
     }
-        addData(req.body)
-        res.send("Data added to db")
+        addData(req.body).then(readData().then(response => (res.json(response))));
+        // res.send("Data added to db")
 })
 
 app.post("/delete-task", function(req,res){
-    async function updateData(input_json) {
-        try {
-            const current_data = await task_collection.doc(input_json.id).get();
+    // async function updateData(input_json) {
+        const input_json = req.body;
+        task_collection.doc(input_json.id).get()
+        .then(current_data => {
             const updated_data = current_data.data();
             if (updated_data.deleted) {
                 updated_data.deleted = false;
             } else {
                 updated_data.deleted = true;
             }
-            const new_data = await task_collection.doc(input_json.id).set(updated_data);
-        } catch {
-            console.log("something went wrong in function deleteTask")
-        }
-    }
-    updateData(req.body)
-        res.send("Data updated")
+            task_collection.doc(input_json.id).set(updated_data).then(readData().then(response => (res.json(response))));
+        })
+        // try {
+        //     const current_data = await task_collection.doc(input_json.id).get();
+        //     const updated_data = current_data.data();
+        //     if (updated_data.deleted) {
+        //         updated_data.deleted = false;
+        //     } else {
+        //         updated_data.deleted = true;
+        //     }
+        //     const new_data = await task_collection.doc(input_json.id).set(updated_data);
+        // } catch {
+        //     console.log("something went wrong in function deleteTask")
+        // }
+    // }
+    // updateData(req.body)
+    //     res.send("Data updated")
 })
 
 app.listen(PORT, () => {
