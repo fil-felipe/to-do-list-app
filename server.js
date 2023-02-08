@@ -67,6 +67,19 @@ app.post("/delete-task", function(req,res){
         })
 })
 
+app.delete("/delete-tasks", function(req,res) {
+    task_collection.get()
+    .then(response => {
+        response.forEach(doc => {
+            // console.log(doc.data().deleted)
+            if (doc.data().deleted) {
+                console.log(doc.id)
+                task_collection.doc(doc.id).delete()
+            }
+        });
+    }).then(readData().then(response => (res.json(response))))
+})
+
 app.listen(PORT, () => {
     console.log(`server run on ${PORT}`);
 })
