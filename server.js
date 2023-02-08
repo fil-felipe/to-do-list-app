@@ -50,7 +50,6 @@ app.post("/add-task", function(req,res){
         } 
     }
         addData(req.body).then(readData().then(response => (res.json(response))));
-        // res.send("Data added to db")
 })
 
 app.post("/delete-task", function(req,res){
@@ -66,21 +65,6 @@ app.post("/delete-task", function(req,res){
             }
             task_collection.doc(input_json.id).set(updated_data).then(readData().then(response => (res.json(response))));
         })
-        // try {
-        //     const current_data = await task_collection.doc(input_json.id).get();
-        //     const updated_data = current_data.data();
-        //     if (updated_data.deleted) {
-        //         updated_data.deleted = false;
-        //     } else {
-        //         updated_data.deleted = true;
-        //     }
-        //     const new_data = await task_collection.doc(input_json.id).set(updated_data);
-        // } catch {
-        //     console.log("something went wrong in function deleteTask")
-        // }
-    // }
-    // updateData(req.body)
-    //     res.send("Data updated")
 })
 
 app.listen(PORT, () => {
