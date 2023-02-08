@@ -40,7 +40,7 @@ app.get("/read-task", function(req,res){
     readData().then(response => (res.json(response)));
 });
 
-app.post("/add-task", function(req,res){
+app.post("/add-task", async function(req,res){
     // async function addData(json_data) {
     //     try {
     //         const new_data = await task_collection.add(json_data);
@@ -53,14 +53,18 @@ app.post("/add-task", function(req,res){
     //         // readData().then(response => (res.json(response)))
     //         request => {console.log(request)}
     //         );
-    const json_data = req.body
-    task_collection.add(json_data).then(readData().then(response => (res.json(response)))
+    const json_data = req.body;
+    // console.log(json_data)
+    await task_collection.add(json_data);
+    const output = await readData();
+    res.json(output);
+    // then(readData().then(response => (res.json(response)))
         // response=>{
         // console.log(response);
         // res.send("Done");
         
     // }
-    )
+    // )
 })
 
 app.post("/delete-task", function(req,res){
