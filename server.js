@@ -52,8 +52,9 @@ async function readDataFromCollection(collection_name) {
 
 
 
-app.get("/user", async function(req,res) {
-    const output = await readUserData("default_user");
+app.get("/user/:userName", async function(req,res) {
+    userName = req.params.userName
+    const output = await readUserData(userName);
     res.json(output);
 })
 
