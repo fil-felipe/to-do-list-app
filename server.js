@@ -88,6 +88,34 @@ app.post("/add-task/:collection", async function(req,res) {
     res.json(output);
 })
 
+app.post("/create-collection/:userName", async function(req, res) {
+    const collectionName = req.body.collection
+    const userName = req.params.userName
+    const raw_output = await user_collection.doc(userName).get()
+    const output_data = raw_output.data()
+    output_data.avilable_lists.push(collectionName)
+    await user_collection.doc(userName).update(output_data)
+    const final_output = await readUserData(userName);
+    res.json(final_output);
+})
+
+app.delete("/delete-collection/:userName", async function(req, res) {
+    const collectionName = req.body.collection
+    const userName = req.params.userName
+    const raw_output = await user_collection.doc(userName).get()
+    const output_data = raw_output.data()
+    const index = output_data.avilable_lists.indexOf(collectionName)
+    if (index > -1) {
+        output_data.avilable_lists.splice(index, 1); 
+        await user_collection.doc(userName).update(output_data);
+        let final_output = await readUserData(userName);
+        res.json(final_output);
+    } else {
+        res.json(output_data);
+    } 
+    
+})
+
 app.post("/delete-task", async function(req,res){
         const input_json = req.body;
         const current_data = await task_collection.doc(input_json.id).get();
